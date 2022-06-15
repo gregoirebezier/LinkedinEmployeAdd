@@ -16,7 +16,58 @@ def GetNames():
     df = pd.read_csv('general_bamboohr_org_chart.csv')
     names = df["Name"].unique()
     AllNames = df.loc[df["Name"] == names]["Name"].values
+    #print(AllNames)
     return AllNames
+
+def ClickNormalProfile(name, driver):
+    """ 
+    try:
+        driver.find_element_by_xpath("//*[@class='artdeco-button artdeco-button--2 artdeco-button--secondary ember-view']").click()
+        sleep(1)
+        driver.find_element_by_xpath("//*[@class='artdeco-button artdeco-button--2 artdeco-button--primary ember-view ml1']").click()
+        return (driver)
+    except:
+        pass 
+    """
+    try:
+        driver.find_element_by_xpath("//input[@placeholder='Recherche']").clear()
+        driver.find_element_by_xpath("//input[@placeholder='Recherche']").send_keys(name)
+        driver.find_element_by_xpath("//input[@placeholder='Recherche']").send_keys(Keys.ENTER)
+        sleep(5)
+        driver.find_element_by_xpath("//*[@class='app-aware-link artdeco-button artdeco-button--default artdeco-button--2 artdeco-button--primary']").click()
+        sleep(4)
+        buttons = driver.find_elements_by_xpath("//*[@class='artdeco-button artdeco-button--2 artdeco-button--primary ember-view pvs-profile-actions__action']")
+        for element in buttons:
+            try:
+                element.click()
+                sleep(2)
+                break
+            except:
+                pass
+        driver.find_element_by_xpath("//*[@class='artdeco-button artdeco-button--2 artdeco-button--primary ember-view ml1']").click()
+        sleep(2)
+        with open('linkedin_connections.txt', 'a') as f:
+            f.write(name + '\n')
+        return (driver)
+    except:
+        pass
+    """ 
+    try:
+        buttons = driver.find_elements_by_xpath("//*[@class='artdeco-dropdown artdeco-dropdown--placement-bottom artdeco-dropdown--justification-left ember-view']")
+        for element in buttons:
+            try:
+                element.click()
+                sleep(1)
+                break
+            except:
+                pass
+        driver.find_elements_by_xpath("//*[@class='display-flex align-items-center  artdeco-dropdown__item artdeco-dropdown__item--is-dropdown ember-view']")[6].click()
+        sleep(1)
+        driver.find_element_by_xpath("//*[@class='artdeco-button artdeco-button--2 artdeco-button--primary ember-view ml1']").click()
+    except:
+        pass 
+    """
+    return (driver)
 
 def connectionLinkedin(names):
     passwordsecret = config('PASSWORD')
@@ -53,26 +104,8 @@ def connectionLinkedin(names):
                 sleep(1)
             except:
                 print ("PROBLEM WITH THE NEW WINDOW")
-
         try:
-            driver.find_element_by_xpath("//input[@placeholder='Recherche']").clear()
-            driver.find_element_by_xpath("//input[@placeholder='Recherche']").send_keys(name)
-            driver.find_element_by_xpath("//input[@placeholder='Recherche']").send_keys(Keys.ENTER)
-            sleep(5)
-            driver.find_element_by_xpath("//*[@class='app-aware-link artdeco-button artdeco-button--default artdeco-button--2 artdeco-button--primary']").click()
-            sleep(4)
-            buttons = driver.find_elements_by_xpath("//*[@class='artdeco-button artdeco-button--2 artdeco-button--primary ember-view pvs-profile-actions__action']")
-            for element in buttons:
-                try:
-                    element.click()
-                    sleep(2)
-                    break
-                except:
-                    pass
-            driver.find_element_by_xpath("//*[@class='artdeco-button artdeco-button--2 artdeco-button--primary ember-view ml1']").click()
-            sleep(2)
-            with open('linkedin_connections.txt', 'a') as f:
-                f.write(name + '\n')
+            driver = ClickNormalProfile(name, driver)
         except:
             print("No connection found for " + name)
             with open ("NoConnection.txt", "a") as myfile:
@@ -80,8 +113,9 @@ def connectionLinkedin(names):
     sleep(1000)
 ###---------NAVIGATE TO TWITTER---------###
 def main():
-    names = GetNames()
-    driver = connectionLinkedin(names)
+    #names = GetNames()
+    with open ("NoConnection.txt", "r") as names:
+        driver = connectionLinkedin(names)
 
 if __name__ == '__main__':
     main()
